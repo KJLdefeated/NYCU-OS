@@ -61,10 +61,7 @@ void run(char **words, int zombie){
 void runPipe(char **words1, char **words2){
 	pid_t pid1, pid2;
 	int pipe_fd[2];
-	if (pipe(pipe_fd) == -1) {
-		perror("pipe");
-		exit(-1);
-	}
+	pipe(pipe_fd);
 
 	pid1 = fork();
 	if(pid1<0){
@@ -72,9 +69,9 @@ void runPipe(char **words1, char **words2){
         exit(-1);
     }
     else if(pid1==0){
-        dup2(pipe_fd[1], STDOUT_FILENO);
-		close(pipe_fd[0]);
-        execvp(words1[0], words1);
+        dup2(pipe_fd[1], 1);
+        close(pipe_fd[0]);
+		execvp(words1[0], words1);
     }
 
 	//Second Process
@@ -84,12 +81,13 @@ void runPipe(char **words1, char **words2){
         exit(-1);
     }
     else if(pid2==0){
-		dup2(pipe_fd[0], STDIN_FILENO);
-        close(pipe_fd[1]);
+		dup2(pipe_fd[0], 0);
+		close(pipe_fd[1]);
         execvp(words2[0], words2);
     }
 	close(pipe_fd[0]);
 	close(pipe_fd[1]);
+	wait(NULL);
 	wait(NULL);
 }
 
@@ -116,8 +114,9 @@ void redirect(char **words, char *file, int mode){
 
 int main(){
 	char input[100];
-	char **words = malloc(50 * sizeof(char *)), **words1 = malloc(50 * sizeof(char *));
-	for(int i=0;i<50;i++) {words[i] = malloc(20);words1[i] = malloc(20);}
+	char **words = malloc(30 * sizeof(char *));
+	char **words1 = malloc(30 * sizeof(char *));
+	for(int i=0;i<30;i++) {words[i] = malloc(50);words1[i] = malloc(50);}
 	printf("> ");
 	while(fgets(input, 100, stdin)){
 		if(strcmp(input, "\n") == 0) {printf("> ");continue;}
@@ -126,11 +125,11 @@ int main(){
 		//string parser
 		char *delim = " \n";
 		char *word = strtok(input, delim);
-		int n = 0, m = 0, zombie, mode = 0;
+		int n = 0, m = 0, zombie = 0, mode = 0;
 		while(word != NULL){
-			if(!strcmp(word, "|")){mode = 1;}
-			else if(!strcmp(word, ">")){mode = 2;}
-			else if(!strcmp(word, "<")){mode = 3;}
+			if(!strcmp(word, "|")) mode = 1;
+			else if(!strcmp(word, ">")) mode = 2;
+			else if(!strcmp(word, "<")) mode = 3;
 			else if(mode) words1[m++] = word;
 			else words[n++] = word;
 			word = strtok(NULL, delim);
@@ -145,7 +144,7 @@ int main(){
 				zombie = 1;
 				m--;
 			}
-			words[m] = NULL;
+			words1[m] = NULL;
 		}
 
 		//fork another process
