@@ -122,7 +122,7 @@ int main(){
         sem_wait(&finish);
         gettimeofday(&end, 0);
         float ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0;
-        printf("worker thread #%d, elapsed %f ms\n", n, ms);
+        printf("worker thread #%d, elapsed %f ms\n", n_threads, ms);
         string str;
         str.append("output_").append(to_string(n_threads)).append(".txt");
         out.open(str);
