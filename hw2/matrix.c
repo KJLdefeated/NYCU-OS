@@ -15,7 +15,7 @@ Statement: I am fully aware that this program is not supposed to be posted to a 
 
 int main(){
     int n;
-    printf("Input the matrix dimension: ");
+    printf("Input the matrix dimension: ");fflush(stdout);
     scanf("%d", &n);
     u_int32_t *A = (u_int32_t*)malloc(n*n*sizeof(u_int32_t));
     for(int i=0;i<n;i++)for(int j=0;j<n;j++)A[i*n+j] = i*n + j;
@@ -47,7 +47,7 @@ int main(){
         gettimeofday(&end, 0);
         int sec = end.tv_sec - start.tv_sec;
         int usec = end.tv_usec - start.tv_usec;
-        printf("Multiplying matrices using %d processes\nElapsed time %f sec, Checksum: %d\n", i, sec+(usec/1000000.0), sum);
+        printf("Multiplying matrices using %d processes\nElapsed time %f sec, Checksum: %d\n", i, sec+(usec/1000000.0), sum);fflush(stdout);
     }
     shmdt(mat);
     shmctl(shm_id, IPC_RMID, NULL);
