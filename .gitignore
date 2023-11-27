@@ -2,3 +2,6 @@
 *.vscode
 *.txt
 *.out
+*.so
+*.o
+
