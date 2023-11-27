@@ -23,10 +23,10 @@ void *add = 0;
 block *head = 0;
 static const size_t align_to = 32;
 
-void *malloc(size_t size){
+void *malloc(size_t req_size){
     block *cur=0, *tmp=0;
-    if(size){
-        size = (size + (align_to - 1) & ~ (align_to - 1));
+    if(req_size){
+        req_size = (req_size + (align_to - 1) & ~ (align_to - 1));
         if(!add){
             add = mmap(NULL, 20000, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
             head = add;
@@ -36,29 +36,29 @@ void *malloc(size_t size){
             head->next = NULL;
         }
         cur=head;
-        size_t maxsize = (1<<16);
+        size_t maxsize = (1<<20);
         while(cur != NULL){
-            if(cur->free && cur->size < maxsize && cur->size >= size){
+            if(cur->free && cur->size < maxsize && cur->size >= req_size){
                 maxsize = cur->size;
                 tmp = cur;
             }
             cur = cur->next;
         }
         cur = tmp;
-        if(cur->size == size){
+        if(cur->size == req_size){
             cur->free=0;
             return cur+1;
         }
         else{
-            tmp = cur + 1 + size/32;
+            tmp = cur + 1 + req_size/32;
             tmp->free=1;
             tmp->prev=cur;
             tmp->next=cur->next;
-            tmp->size=cur->size-32-size;
+            tmp->size=cur->size-32-req_size;
             if(cur->next != NULL) cur->next->prev = tmp;
             cur->next = tmp;
             cur->free = 0;
-            cur->size = size;
+            cur->size = req_size;
             return cur+1;
         }
     }
