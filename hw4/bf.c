@@ -69,9 +69,10 @@ void *malloc(size_t req_size){
             maxsize = (cur->size>maxsize&&cur->free) ? cur->size : maxsize;
             cur=cur->next;
         }
-        char ans[50];
+        char ans[35];
+        memset(ans, 0, 35);
         sprintf(ans, "Max Free Chunk Size = %ld\n", maxsize);
-        write(1, ans, 50);
+        write(1, ans, 35);
         return 0;
     }
 }
